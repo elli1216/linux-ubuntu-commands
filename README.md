@@ -59,6 +59,80 @@ sudo apt install dnsmasq -y
 
 </div>
 
+<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
+
+<h3 style="color: #17a2b8; margin-top: 0; font-size: 1.3em;">4.2. Client-Side DNS Troubleshooting</h3>
+
+<p style="color: #2c3e50;">If <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup</code> commands fail or show <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">Server: 127.0.0.53</code>, it means the client is ignoring the DHCP's DNS settings. This fix forces the client to use the server.</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Stop and disable the client's local DNS service
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+```
+
+</div>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Remove the old symlinked DNS file
+sudo rm /etc/resolv.conf
+```
+
+</div>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Create a new, static DNS config file
+sudo nano /etc/resolv.conf
+```
+
+</div>
+
+<p style="color: #2c3e50;">Add the following lines to this new file:</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```conf
+# /etc/resolv.conf
+nameserver 10.10.10.1
+search dar1.lan
+```
+
+</div>
+
+</div>
+
+<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
+
+<h3 style="color: #17a2b8; margin-top: 0; font-size: 1.3em;">4.3. Final Client DNS Test</h3>
+
+<p style="color: #2c3e50;">After the fixes in <strong>3.9</strong> and <strong>4.2</strong>, all <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup</code> commands should be clean.</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Test 1: Check the resolver (should show 10.10.10.1)
+cat /etc/resolv.conf
+
+# Test 2: Look up server by name
+nslookup serverubuntudar1
+
+# Test 3: Look up server by IP
+nslookup 10.10.10.1
+
+# Test 4: Look up the domain itself
+nslookup dar1.lan
+```
+
+</div>
+
+</div>
+
 </div>
 
 <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid #ff6b6b; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -399,6 +473,85 @@ sudo systemctl restart dnsmasq
 </div>
 
 </div>
+
+</div>
+
+</div>
+
+<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
+
+<h3 style="color: #ff6b6b; margin-top: 0; font-size: 1.3em;">3.9. Final DNS Troubleshooting (On Server)</h3>
+
+<p style="color: #2c3e50; margin-bottom: 10px;"><strong style="color: #ff6b6b;">Fixing</strong> <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup ... REFUSED</code> error</p>
+
+<p style="color: #2c3e50;">This happens because <strong>dnsmasq</strong> is forwarding local domain queries to the public internet.</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Open the dnsmasq config file
+sudo nano /etc/dnsmasq.conf
+```
+
+</div>
+
+<p style="color: #2c3e50;">Add these two lines to the bottom of the file:</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```conf
+# /etc/dnsmasq.conf (at the bottom)
+
+# Tell dnsmasq that our domain is local and not public
+domain-needed
+
+# Never forward requests for .dar1.lan to an upstream DNS server
+local=/dar1.lan/
+```
+
+</div>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Restart dnsmasq to apply
+sudo systemctl restart dnsmasq
+```
+
+</div>
+
+<p style="color: #2c3e50; margin-bottom: 10px;"><strong style="color: #ff6b6b;">Fixing</strong> <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup dar1.lan ... No answer</code> error</p>
+
+<p style="color: #2c3e50;">This happens because the domain itself has no IP in the <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">/etc/hosts</code> file.</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Open the hosts file
+sudo nano /etc/hosts
+```
+
+</div>
+
+<p style="color: #2c3e50;">Add the bare domain (<code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">dar1.lan</code>) to the end of your server's <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">10.10.10.1</code> line:</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```conf
+# /etc/hosts
+127.0.0.1   localhost
+127.0.1.1   serverubuntudar1.dar1.lan   serverubuntudar1
+10.10.10.1  serverubuntudar1.dar1.lan   serverubuntudar1   dar1.lan
+```
+
+</div>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Restart dnsmasq to apply
+sudo systemctl restart dnsmasq
+```
 
 </div>
 
