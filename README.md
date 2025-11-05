@@ -268,6 +268,8 @@ domain=project.lan
 dhcp-range=10.10.10.100,10.10.10.200,12h
 dhcp-option=option:router,10.10.10.1
 dhcp-option=option:dns-server,10.10.10.1
+domain-needed # Tell dnsmasq that our domain is local and not public
+local=/dar1.lan/ # Never forward requests for .dar1.lan to an upstream DNS server
 ```
 
 </div>
@@ -288,8 +290,8 @@ sudo nano /etc/hosts
 
 ```conf
 127.0.0.1   localhost
-127.0.1.1   serverubuntudar1.project.lan serverubuntudar1
-10.10.10.1  serverubuntudar1.project.lan serverubuntudar1
+127.0.1.1   serverubuntudar1.dar1.lan   serverubuntudar1
+10.10.10.1  serverubuntudar1.dar1.lan   serverubuntudar1   dar1.lan
 ```
 
 </div>
