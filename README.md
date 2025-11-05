@@ -59,82 +59,6 @@ sudo apt install dnsmasq -y
 
 </div>
 
-<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
-
-<h3 style="color: #17a2b8; margin-top: 0; font-size: 1.3em;">4.2. Client-Side DNS Troubleshooting</h3>
-
-<p style="color: #2c3e50;">If <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup</code> commands fail or show <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">Server: 127.0.0.53</code>, it means the client is ignoring the DHCP's DNS settings. This fix forces the client to use the server.</p>
-
-<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
-
-```bash
-# Stop and disable the client's local DNS service
-sudo systemctl stop systemd-resolved
-sudo systemctl disable systemd-resolved
-```
-
-</div>
-
-<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
-
-```bash
-# Remove the old symlinked DNS file
-sudo rm /etc/resolv.conf
-```
-
-</div>
-
-<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
-
-```bash
-# Create a new, static DNS config file
-sudo nano /etc/resolv.conf
-```
-
-</div>
-
-<p style="color: #2c3e50;">Add the following lines to this new file:</p>
-
-<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
-
-```conf
-# /etc/resolv.conf
-nameserver 10.10.10.1
-search dar1.lan
-```
-
-</div>
-
-</div>
-
-<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
-
-<h3 style="color: #17a2b8; margin-top: 0; font-size: 1.3em;">4.3. Final Client DNS Test</h3>
-
-<p style="color: #2c3e50;">After the fixes in <strong>3.9</strong> and <strong>4.2</strong>, all <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup</code> commands should be clean.</p>
-
-<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
-
-```bash
-# Test 1: Check the resolver (should show 10.10.10.1)
-cat /etc/resolv.conf
-
-# Test 2: Look up server by name
-nslookup serverubuntudar1
-
-# Test 3: Look up server by IP
-nslookup 10.10.10.1
-
-# Test 4: Look up the domain itself
-nslookup dar1.lan
-```
-
-</div>
-
-</div>
-
-</div>
-
 <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid #ff6b6b; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
 
 <h2 style="color: #ff6b6b; margin-top: 0; font-size: 1.8em; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px;">3. Ubuntu Server Configuration (Step-by-Step)</h2>
@@ -611,6 +535,80 @@ cd /srv/private
 ```bash
 sudo dhclient -r
 sudo dhclient
+```
+
+</div>
+
+</div>
+
+<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
+
+<h3 style="color: #17a2b8; margin-top: 0; font-size: 1.3em;">4.2. Client-Side DNS Troubleshooting</h3>
+
+<p style="color: #2c3e50;">If <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup</code> commands fail or show <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">Server: 127.0.0.53</code>, it means the client is ignoring the DHCP's DNS settings. This fix forces the client to use the server.</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Stop and disable the client's local DNS service
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+```
+
+</div>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Remove the old symlinked DNS file
+sudo rm /etc/resolv.conf
+```
+
+</div>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Create a new, static DNS config file
+sudo nano /etc/resolv.conf
+```
+
+</div>
+
+<p style="color: #2c3e50;">Add the following lines to this new file:</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```conf
+# /etc/resolv.conf
+nameserver 10.10.10.1
+search dar1.lan
+```
+
+</div>
+
+</div>
+
+<div style="background-color: #ffffff; padding: 20px; border-radius: 6px; margin: 20px 0; border: 1px solid #e1e4e8;">
+
+<h3 style="color: #17a2b8; margin-top: 0; font-size: 1.3em;">4.3. Final Client DNS Test</h3>
+
+<p style="color: #2c3e50;">After the fixes in <strong>3.9</strong> and <strong>4.2</strong>, all <code style="background-color: #f1f3f5; padding: 2px 6px; border-radius: 3px; color: #d73a49; font-family: 'Courier New', monospace;">nslookup</code> commands should be clean.</p>
+
+<div style="background-color: #1e1e1e; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0;">
+
+```bash
+# Test 1: Check the resolver (should show 10.10.10.1)
+cat /etc/resolv.conf
+
+# Test 2: Look up server by name
+nslookup serverubuntudar1
+
+# Test 3: Look up server by IP
+nslookup 10.10.10.1
+
+# Test 4: Look up the domain itself
+nslookup dar1.lan
 ```
 
 </div>
